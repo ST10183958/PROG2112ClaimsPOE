@@ -1,0 +1,59 @@
+﻿@model PROG2112ClaimsPOE.Models.ClaimModel
+
+@{
+    ViewData["Title"] = "Create Claim";
+}
+
+<h2>Create New Claim</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label>Lecture Name</label>
+        <input asp-for="LectureName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Lecture Surname</label>
+        <input asp-for="LectureSurname" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Subject Name</label>
+        <input asp-for="SubjectName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Lecturer Email</label>
+        <input asp-for="LecturerEmail" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Subject Code</label>
+        <input asp-for="SubjectCode" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Campus Location</label>
+        <input asp-for="CampusLocation" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Hours Worked</label>
+        <input asp-for="HoursWorked" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Message</label>
+        <textarea asp-for="Message" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Status</label>
+        <input asp-for="Statues" class="form-control" />
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">Submit Claim</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
