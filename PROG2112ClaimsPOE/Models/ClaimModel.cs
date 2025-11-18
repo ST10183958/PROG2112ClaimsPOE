@@ -10,7 +10,12 @@
     public string SubjectCode { get; set; }
     public string CampusLocation { get; set; }
     public string HoursWorked { get; set; }
+    public string HourlyRate { get; set; }
     public string Message { get; set; }
     public string Statues { get; set; }
+
+    public string UploadedFileName { get; set; }
     }
 }
+
+

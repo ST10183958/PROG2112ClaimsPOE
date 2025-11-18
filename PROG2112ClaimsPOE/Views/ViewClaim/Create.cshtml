@@ -6,7 +6,12 @@
 
 <h2>Create New Claim</h2>
 
-<form asp-action="Create" method="post">
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
     <div class="form-group">
         <label>Lecture Name</label>
         <input asp-for="LectureName" class="form-control" />
@@ -47,9 +52,17 @@
         <textarea asp-for="Message" class="form-control"></textarea>
     </div>
 
+    <!-- FILE UPLOAD -->
     <div class="form-group">
-        <label>Status</label>
-        <input asp-for="Statues" class="form-control" />
+        <label>Upload Supporting Document (PDF, DOCX, XLSX)</label>
+        <input type="file" name="uploadFile" class="form-control" />
+
+        @if (Model != null && !string.IsNullOrEmpty(Model.UploadedFileName))
+        {
+            <p class="mt-2 text-success">
+                Uploaded: @Model.UploadedFileName
+            </p>
+        }
     </div>
 
     <br />
