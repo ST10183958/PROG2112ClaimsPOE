@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PROG2112ClaimsPOE.Data;
 
@@ -10,9 +11,11 @@ using PROG2112ClaimsPOE.Data;
 namespace PROG2112ClaimsPOE.Migrations
 {
     [DbContext(typeof(ClaimDbContext))]
-    partial class ClaimDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251119081547_UpdateClaimTable")]
+    partial class UpdateClaimTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

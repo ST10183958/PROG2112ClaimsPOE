@@ -18,8 +18,12 @@ namespace PROG2112ClaimsPOE.Models
     public string CampusLocation { get; set; }
     public int HoursWorked { get; set; }
     public int HourlyRate { get; set; }
+
+    public int Payment { get; set; }
     public string Message { get; set; }
     public string Statues { get; set; }
+
+   
 
     public string UploadedFileName { get; set; }
     }

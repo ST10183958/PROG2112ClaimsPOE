@@ -81,6 +81,14 @@ namespace PROG2112ClaimsPOE.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateAsync(ClaimModel model, IFormFile uploadFile)
         {
+            // Server-side validation
+            if (model.HoursWorked <= 0)
+                ModelState.AddModelError("HoursWorked", "Hours worked must be greater than 0.");
+
+            if (model.HourlyRate <= 0)
+                ModelState.AddModelError("HourlyRate", "Hourly rate must be greater than 0.");
+
+            // Re-check model validity
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -106,7 +114,7 @@ namespace PROG2112ClaimsPOE.Controllers
                 if (!Directory.Exists(uploadPath))
                     Directory.CreateDirectory(uploadPath);
 
-                string fileName = Guid.NewGuid().ToString() + ext;
+                string fileName = Guid.NewGuid() + ext;
                 string filePath = Path.Combine(uploadPath, fileName);
 
                 using (var fs = new FileStream(filePath, FileMode.Create))
@@ -117,6 +125,8 @@ namespace PROG2112ClaimsPOE.Controllers
                 model.UploadedFileName = fileName;
             }
 
+            // ***** Auto Calculation Logic *****
+            model.Payment = model.HoursWorked * model.HourlyRate;
             model.Statues = "Pending";
 
             // Save to DB
@@ -125,5 +135,6 @@ namespace PROG2112ClaimsPOE.Controllers
 
             return RedirectToAction("Index");
         }
+
     }
 }
