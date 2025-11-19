@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PROG2112ClaimsPOE.Data;
 using PROG2112ClaimsPOE.Models;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,111 +11,117 @@ namespace PROG2112ClaimsPOE.Controllers
 {
     public class ViewClaimController : Controller
     {
-
         private readonly IWebHostEnvironment _env;
+        private readonly ClaimDbContext _context;
 
-        public ViewClaimController(IWebHostEnvironment env)
+        public ViewClaimController(IWebHostEnvironment env, ClaimDbContext context)
         {
             _env = env;
+            _context = context;
         }
 
-
-        private static List<ClaimModel> ClaimsList = new List<ClaimModel>();
-
-        public IActionResult Index()
+        // ======================================
+        // INDEX — View All Claims
+        // ====================================== 
+        public async Task<IActionResult> Index()
         {
-            return View(ClaimsList);
+            var claims = await _context.ClaimTable.ToListAsync();
+            return View(claims);
         }
 
-        // Manager section //
-
-        public IActionResult ManagerView()
+        // ======================================
+        // MANAGER VIEW — Only Pending Claims
+        // ======================================
+        public async Task<IActionResult> ManagerView()
         {
-            var pendingClaims = ClaimsList
+            var pendingClaims = await _context.ClaimTable
                 .Where(c => c.Statues == "Pending")
-                .ToList();
+                .ToListAsync();
+
             return View(pendingClaims);
         }
 
-        public IActionResult Accept(string id)
+        // ACCEPT
+        public async Task<IActionResult> Accept(int id)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.Id == id);
+            var claim = await _context.ClaimTable.FindAsync(id);
             if (claim != null)
             {
                 claim.Statues = "Accepted";
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("ManagerView");
         }
 
-        public IActionResult Reject(string id)
+        // REJECT
+        public async Task<IActionResult> Reject(int id)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.Id == id);
+            var claim = await _context.ClaimTable.FindAsync(id);
             if (claim != null)
             {
                 claim.Statues = "Rejected";
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("ManagerView");
         }
 
-
-        // Lecturer Section
-
+        // ======================================
+        // CREATE — GET
+        // ======================================
         public IActionResult Create()
         {
             return View();
         }
 
+        // ======================================
+        // CREATE — POST
+        // ======================================
         [HttpPost]
         public async Task<IActionResult> CreateAsync(ClaimModel model, IFormFile uploadFile)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Handle file upload if there *is* a file
+            // Handle file upload
             if (uploadFile != null)
             {
-                // Size Check: max 5MB
+                var ext = Path.GetExtension(uploadFile.FileName).ToLower();
+                var allowed = new[] { ".pdf", ".docx", ".xlsx" };
+
+                if (!allowed.Contains(ext))
+                {
+                    ViewBag.Error = "Only PDF, DOCX, XLSX allowed.";
+                    return View(model);
+                }
+
                 if (uploadFile.Length > 5 * 1024 * 1024)
                 {
-                    ViewBag.Error = "File size cannot exceed 5 MB.";
+                    ViewBag.Error = "File too large. Max 5MB.";
                     return View(model);
                 }
 
-                // Allowed types
-                var allowedExtensions = new[] { ".pdf", ".docx", ".xlsx" };
-                var ext = Path.GetExtension(uploadFile.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(ext))
-                {
-                    ViewBag.Error = "Only PDF, DOCX, and XLSX files are allowed.";
-                    return View(model);
-                }
-
-                // Ensure upload directory exists
                 string uploadPath = Path.Combine(_env.WebRootPath, "uploads");
                 if (!Directory.Exists(uploadPath))
                     Directory.CreateDirectory(uploadPath);
 
-                // Create unique filename
-                string uniqueFileName = $"{Guid.NewGuid()}{ext}";
-                string filePath = Path.Combine(uploadPath, uniqueFileName);
+                string fileName = Guid.NewGuid().ToString() + ext;
+                string filePath = Path.Combine(uploadPath, fileName);
 
-                // Save file securely
                 using (var fs = new FileStream(filePath, FileMode.Create))
                 {
                     await uploadFile.CopyToAsync(fs);
                 }
 
-                // Save filename to model
-                model.UploadedFileName = uniqueFileName;
+                model.UploadedFileName = fileName;
             }
 
-            // Add claim to the list
-            model.Id = (ClaimsList.Count + 1).ToString();
             model.Statues = "Pending";
-            ClaimsList.Add(model);
+
+            // Save to DB
+            _context.ClaimTable.Add(model);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }

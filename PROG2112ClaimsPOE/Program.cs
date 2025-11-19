@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using PROG2112ClaimsPOE.Data;
+
 namespace PROG2112ClaimsPOE
 {
     public class Program
@@ -8,6 +11,10 @@ namespace PROG2112ClaimsPOE
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Add DbContext
+            builder.Services.AddDbContext<ClaimDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("ClaimDb")));
 
             var app = builder.Build();
 
