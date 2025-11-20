@@ -1,5 +1,10 @@
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PROG2112ClaimsPOE.Data;
+using PROG2112ClaimsPOE.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace PROG2112ClaimsPOE
 {
@@ -15,6 +20,28 @@ namespace PROG2112ClaimsPOE
             // Add DbContext
             builder.Services.AddDbContext<ClaimDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("ClaimDb")));
+
+            builder.Services.AddScoped<IClaimVerificationService, ClaimVerificationService>();
+
+            // FluentValidation registration (install FluentValidation.AspNetCore)
+            builder.Services.AddControllersWithViews()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Program>());
+
+            // Identity & authorization (sample skeleton; you must adapt to your identity setup)
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            {
+                options.Password.RequireNonAlphanumeric = false;
+            })
+            .AddEntityFrameworkStores<ClaimDbContext>()
+            .AddDefaultTokenProviders();
+
+
+            // policy for Manager role
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireManagerRole", policy =>
+                    policy.RequireRole("Manager"));
+            });
 
             var app = builder.Build();
 

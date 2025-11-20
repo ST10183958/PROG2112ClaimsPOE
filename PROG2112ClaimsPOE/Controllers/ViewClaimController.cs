@@ -34,11 +34,11 @@ namespace PROG2112ClaimsPOE.Controllers
         // ======================================
         public async Task<IActionResult> ManagerView()
         {
-            var pendingClaims = await _context.ClaimTable
-                .Where(c => c.Statues == "Pending")
+            var pending = await _context.ClaimTable
+                .Where(c => c.Statues == ClaimStatus.Pending || c.Statues == ClaimStatus.NeedsReview)
                 .ToListAsync();
 
-            return View(pendingClaims);
+            return View(pending);
         }
 
         // ACCEPT
@@ -47,7 +47,7 @@ namespace PROG2112ClaimsPOE.Controllers
             var claim = await _context.ClaimTable.FindAsync(id);
             if (claim != null)
             {
-                claim.Statues = "Accepted";
+                claim.Statues = ClaimStatus.Accepted; ;
                 await _context.SaveChangesAsync();
             }
 
@@ -60,7 +60,7 @@ namespace PROG2112ClaimsPOE.Controllers
             var claim = await _context.ClaimTable.FindAsync(id);
             if (claim != null)
             {
-                claim.Statues = "Rejected";
+                claim.Statues = ClaimStatus.Rejected;
                 await _context.SaveChangesAsync();
             }
 
@@ -127,7 +127,7 @@ namespace PROG2112ClaimsPOE.Controllers
 
             // ***** Auto Calculation Logic *****
             model.Payment = model.HoursWorked * model.HourlyRate;
-            model.Statues = "Pending";
+            model.Statues = ClaimStatus.Pending;
 
             // Save to DB
             _context.ClaimTable.Add(model);

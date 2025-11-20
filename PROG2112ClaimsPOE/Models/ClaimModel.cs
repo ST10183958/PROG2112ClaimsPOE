@@ -16,16 +16,15 @@ namespace PROG2112ClaimsPOE.Models
     public string LecturerEmail { get; set; }
     public string SubjectCode { get; set; }
     public string CampusLocation { get; set; }
-    public int HoursWorked { get; set; }
-    public int HourlyRate { get; set; }
+    public decimal HoursWorked { get; set; }
+    public decimal HourlyRate { get; set; }
 
-    public int Payment { get; set; }
+    public decimal Payment { get; set; }
     public string Message { get; set; }
-    public string Statues { get; set; }
 
-   
+        public ClaimStatus Statues { get; set; } = ClaimStatus.Pending;
 
-    public string UploadedFileName { get; set; }
+        public string UploadedFileName { get; set; }
     }
 }
 

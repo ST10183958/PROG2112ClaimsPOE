@@ -1,57 +1,76 @@
 ﻿@model IEnumerable<PROG2112ClaimsPOE.Models.ClaimModel>
-
 @{
-    ViewData["Title"] = "Manager View - Pending Claims";
+    Layout = "_Layout";
 }
-
-<h2>Pending Claims</h2>
-
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Lecture Name</th>
-            <th>Lecture Surname</th>
-            <th>Subject Name</th>
-            <th>Campus</th>
-            <th>Hours</th>
-            <th>Hourly Rate</th>
-            <th>Payment</th>
-            <th>Message</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-
+<table class="table">
+    <thead>...</thead>
     <tbody>
-        @foreach (var claim in Model)
+        @foreach (var c in Model)
         {
-            <tr>
-                <td>@claim.Id</td>
-                <td>@claim.LectureName</td>
-                <td>@claim.LectureSurname</td>
-                <td>@claim.SubjectName</td>
-                <td>@claim.CampusLocation</td>
-                <td>@claim.HoursWorked</td>
-                <td>@claim.HourlyRate</td>
-                <td>@claim.Payment</td>
-                <td>@claim.Message</td>
-                <td>@claim.Statues</td>
-
+            <tr id="row-@c.Id">
+                <td>@c.Id</td>
+                <td>@c.LectureName @c.LectureSurname</td>
+                <td>@c.HoursWorked</td>
+                <td>@c.HourlyRate</td>
+                <td>@c.Payment</td>
+                <td id="status-@c.Id">@c.Statues</td>
                 <td>
-                    <a asp-action="Accept"
-                       asp-route-id="@claim.Id"
-                       class="btn btn-success btn-sm">
-                        Accept
-                    </a>
-
-                    <a asp-action="Reject"
-                       asp-route-id="@claim.Id"
-                       class="btn btn-danger btn-sm">
-                        Reject
-                    </a>
+                    <button class="btn btn-sm btn-info verify-btn" data-id="@c.Id">Run Verification</button>
+                    <button class="btn btn-sm btn-success manager-approve" data-id="@c.Id" style="display:none">Approve</button>
+                    <button class="btn btn-sm btn-danger manager-reject" data-id="@c.Id" style="display:none">Reject</button>
+                    <div class="verify-messages" id="msgs-@c.Id"></div>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(".verify-btn").click(function(){
+          var id = $(this).data("id");
+          var button = $(this);
+          button.prop("disabled", true).text("Verifying...");
+          $.get("/api/ClaimsApi/Verify/" + id)
+            .done(function(result){
+              $("#msgs-" + id).html(result.messages.map(m => "<div>"+m+"</div>").join(""));
+              $("#status-" + id).text(result.isApproved ? "AutoApproved" : (result.isRejected ? "AutoRejected" : (result.needsReview ? "NeedsReview" : "Pending")));
+              // Show manager controls if needs review
+              if(result.needsReview){
+                $("#row-" + id + " .manager-approve, #row-" + id + " .manager-reject").show();
+              } else {
+                $("#row-" + id + " .manager-approve, #row-" + id + " .manager-reject").hide();
+              }
+            })
+            .fail(function(){
+              alert("Verification failed.");
+            })
+            .always(function(){
+              button.prop("disabled", false).text("Run Verification");
+            });
+        });
+
+        $(".manager-approve").click(function(){
+          var id = $(this).data("id");
+          var notes = prompt("Add approval notes (optional):", "");
+          $.ajax({
+            url: "/api/ClaimsApi/ManagerApprove/" + id,
+            method: "POST",
+            data: JSON.stringify(notes),
+            contentType: "application/json"
+          }).done(function(){ location.reload(); });
+        });
+
+        $(".manager-reject").click(function(){
+          var id = $(this).data("id");
+          var notes = prompt("Add rejection notes (optional):", "");
+          $.ajax({
+            url: "/api/ClaimsApi/ManagerReject/" + id,
+            method: "POST",
+            data: JSON.stringify(notes),
+            contentType: "application/json"
+          }).done(function(){ location.reload(); });
+        });
+    </script>
+}
