@@ -16,8 +16,8 @@ namespace PROG2112ClaimsPOE.Controllers
 
         public ViewClaimController(IWebHostEnvironment env, ClaimDbContext context)
         {
-            _env = env;
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _env = env ?? throw new ArgumentNullException(nameof(env));
         }
 
         // ======================================
@@ -70,68 +70,76 @@ namespace PROG2112ClaimsPOE.Controllers
         // ======================================
         // CREATE — GET
         // ======================================
+        [HttpPost]
+        [Route("ViewClaim/TestPost")]
+        public IActionResult TestPost()
+        {
+            Console.WriteLine("POST hit!");
+            return Content("POST hit!");
+        }
+
         public IActionResult Create()
         {
             return View();
         }
 
+
         // ======================================
         // CREATE — POST
         // ======================================
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(ClaimModel model, IFormFile uploadFile)
+
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(ClaimModel model, IFormFile uploadFile)
         {
-            // Server-side validation
-            if (model.HoursWorked <= 0)
-                ModelState.AddModelError("HoursWorked", "Hours worked must be greater than 0.");
-
-            if (model.HourlyRate <= 0)
-                ModelState.AddModelError("HourlyRate", "Hourly rate must be greater than 0.");
-
-            // Re-check model validity
-            if (!ModelState.IsValid)
-                return View(model);
-
-            // Handle file upload
-            if (uploadFile != null)
+            try
             {
-                var ext = Path.GetExtension(uploadFile.FileName).ToLower();
-                var allowed = new[] { ".pdf", ".docx", ".xlsx" };
+                Console.WriteLine("CreateTest POST triggered");
 
-                if (!allowed.Contains(ext))
-                {
-                    ViewBag.Error = "Only PDF, DOCX, XLSX allowed.";
-                    return View(model);
-                }
+                // Calculate payment
+                int payment = model.HoursWorked * model.HourlyRate;
 
-                if (uploadFile.Length > 5 * 1024 * 1024)
-                {
-                    ViewBag.Error = "File too large. Max 5MB.";
-                    return View(model);
-                }
+                // If no file selected, set a default name
+                string uploadedFileName = uploadFile?.FileName ?? "nofile";
 
-                string uploadPath = Path.Combine(_env.WebRootPath, "uploads");
-                if (!Directory.Exists(uploadPath))
-                    Directory.CreateDirectory(uploadPath);
+                int status = (int)ClaimStatus.Pending;
 
-                string fileName = Guid.NewGuid() + ext;
-                string filePath = Path.Combine(uploadPath, fileName);
+                string sql = @"
+            INSERT INTO ClaimTable 
+            (LectureName, LectureSurname, SubjectName, LecturerEmail, SubjectCode, CampusLocation,
+             HoursWorked, HourlyRate, Payment, Message, Statues, UploadedFileName)
+            VALUES 
+            (@LectureName, @LectureSurname, @SubjectName, @LecturerEmail, @SubjectCode, @CampusLocation,
+             @HoursWorked, @HourlyRate, @Payment, @Message, @Status, @UploadedFileName)
+        ";
 
-                using (var fs = new FileStream(filePath, FileMode.Create))
-                {
-                    await uploadFile.CopyToAsync(fs);
-                }
+                await _context.Database.ExecuteSqlRawAsync(
+                    sql,
+                    new[]
+                    {
+                new Microsoft.Data.SqlClient.SqlParameter("@LectureName", model.LectureName),
+                new Microsoft.Data.SqlClient.SqlParameter("@LectureSurname", model.LectureSurname),
+                new Microsoft.Data.SqlClient.SqlParameter("@SubjectName", model.SubjectName),
+                new Microsoft.Data.SqlClient.SqlParameter("@LecturerEmail", model.LecturerEmail),
+                new Microsoft.Data.SqlClient.SqlParameter("@SubjectCode", model.SubjectCode),
+                new Microsoft.Data.SqlClient.SqlParameter("@CampusLocation", model.CampusLocation),
+                new Microsoft.Data.SqlClient.SqlParameter("@HoursWorked", model.HoursWorked),
+                new Microsoft.Data.SqlClient.SqlParameter("@HourlyRate", model.HourlyRate),
+                new Microsoft.Data.SqlClient.SqlParameter("@Payment", payment),
+                new Microsoft.Data.SqlClient.SqlParameter("@Message", model.Message ?? ""),
+                new Microsoft.Data.SqlClient.SqlParameter("@Status", status),
+                new Microsoft.Data.SqlClient.SqlParameter("@UploadedFileName", uploadedFileName)
+                    }
+                );
 
-                model.UploadedFileName = fileName;
+                Console.WriteLine("Claim inserted via CreateTest.");
+                return RedirectToAction("Index");
             }
-
-            // ***** Auto Calculation Logic *****
-            model.Payment = model.HoursWorked * model.HourlyRate;
-            model.Statues = ClaimStatus.Pending;
-
-            // Save to DB
-            _context.ClaimTable.Add(model);
-            await _context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error inserting dummy claim: " + ex.Message);
+                return RedirectToAction("Index");
+            }
 
             return RedirectToAction("Index");
         }

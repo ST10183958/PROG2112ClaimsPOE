@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace PROG2112ClaimsPOE.Models
 {
 
-    [Table("ClaimTable")]
+    
     public class ClaimModel
     {
 

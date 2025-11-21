@@ -44,9 +44,7 @@ namespace PROG2112ClaimsPOE
             });
 
             builder.Services.AddDbContext<ClaimDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ClaimDb"))
-           .EnableSensitiveDataLogging()  // Enable this for debugging
-           .LogTo(Console.WriteLine));    // Logs EF Core SQL queries to the console
+                options.UseSqlServer(builder.Configuration.GetConnectionString("ClaimDb")));
 
 
             var app = builder.Build();
