@@ -47,7 +47,7 @@ namespace PROG2112ClaimsPOE.Controllers
             var claim = await _context.ClaimTable.FindAsync(id);
             if (claim != null)
             {
-                claim.Statues = ClaimStatus.Accepted; ;
+                claim.Statues = ClaimStatus.Approved; ;
                 await _context.SaveChangesAsync();
             }
 

@@ -43,6 +43,12 @@ namespace PROG2112ClaimsPOE
                     policy.RequireRole("Manager"));
             });
 
+            builder.Services.AddDbContext<ClaimDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ClaimDb"))
+           .EnableSensitiveDataLogging()  // Enable this for debugging
+           .LogTo(Console.WriteLine));    // Logs EF Core SQL queries to the console
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

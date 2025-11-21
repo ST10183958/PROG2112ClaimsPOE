@@ -2,12 +2,11 @@
 {
     public enum ClaimStatus
     {
-        Approved,
-        Pending,
-        Accepted,
-        Rejected,
-        NeedsReview,
-        AutoApproved,
-        AutoRejected
+        Pending = 1,
+        AutoApproved = 2,
+        AutoRejected = 3,
+        Approved = 4,
+        Rejected = 5,
+        NeedsReview = 6
     }
 }
