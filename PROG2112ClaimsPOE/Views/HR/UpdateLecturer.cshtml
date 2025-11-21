@@ -1,0 +1,27 @@
+﻿@model PROG2112ClaimsPOE.Models.LecturerModel
+
+<h2>Update Lecturer Information</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="LectureName">First Name</label>
+        <input type="text" class="form-control" id="LectureName" name="LectureName" value="@Model.LectureName" required />
+    </div>
+    <div class="form-group">
+        <label for="LectureSurname">Last Name</label>
+        <input type="text" class="form-control" id="LectureSurname" name="LectureSurname" value="@Model.LectureSurname" required />
+    </div>
+    <div class="form-group">
+        <label for="LecturerEmail">Email</label>
+        <input type="email" class="form-control" id="LecturerEmail" name="LecturerEmail" value="@Model.LecturerEmail" required />
+    </div>
+    <div class="form-group">
+        <label for="SubjectName">Subject</label>
+        <input type="text" class="form-control" id="SubjectName" name="SubjectName" value="@Model.SubjectName" required />
+    </div>
+    <div class="form-group">
+        <label for="CampusLocation">Campus Location</label>
+        <input type="text" class="form-control" id="CampusLocation" name="CampusLocation" value="@Model.CampusLocation" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>

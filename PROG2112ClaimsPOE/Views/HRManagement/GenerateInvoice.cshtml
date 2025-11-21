@@ -1,0 +1,16 @@
+﻿@model PROG2112ClaimsPOE.Models.ClaimModel
+
+<h2>Invoice for Claim ID: @Model.Id</h2>
+
+<div>
+    <p><strong>Lecture Name:</strong> @Model.LectureName @Model.LectureSurname</p>
+    <p><strong>Subject:</strong> @Model.SubjectName</p>
+    <p><strong>Hours Worked:</strong> @Model.HoursWorked</p>
+    <p><strong>Hourly Rate:</strong> @Model.HourlyRate</p>
+    <p><strong>Total Payment:</strong> @Model.Payment</p>
+    <p><strong>Message:</strong> @Model.Message</p>
+
+    <p><strong>Status:</strong> @Model.Statues</p>
+
+    <!-- Logic for Report Generation (e.g. download as PDF, etc.) -->
+</div>

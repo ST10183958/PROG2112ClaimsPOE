@@ -1,0 +1,31 @@
+﻿@model IEnumerable<PROG2112ClaimsPOE.Models.LecturerModel>
+
+@{
+    ViewData["Title"] = "Lecturer List";
+}
+
+<h2>Lecturer List</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Subject</th>
+            <th>Campus Location</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var lecturer in Model)
+        {
+            <tr>
+                <td>@lecturer.LectureName</td>
+                <td>@lecturer.LectureSurname</td>
+                <td>@lecturer.LecturerEmail</td>
+                <td>@lecturer.SubjectName</td>
+                <td>@lecturer.CampusLocation</td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,33 @@
+﻿@model IEnumerable<PROG2112ClaimsPOE.Models.ClaimModel>
+
+<h2>Approved Claims</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Lecture Name</th>
+            <th>Subject Name</th>
+            <th>Hours Worked</th>
+            <th>Hourly Rate</th>
+            <th>Payment</th>
+            <th>Message</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var claim in Model)
+        {
+            <tr>
+                <td>@claim.LectureName @claim.LectureSurname</td>
+                <td>@claim.SubjectName</td>
+                <td>@claim.HoursWorked</td>
+                <td>@claim.HourlyRate</td>
+                <td>@claim.Payment</td>
+                <td>@claim.Message</td>
+                <td>
+                    <a href="@Url.Action("GenerateInvoice", new { claimId = claim.Id })" class="btn btn-info">Generate Invoice</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
